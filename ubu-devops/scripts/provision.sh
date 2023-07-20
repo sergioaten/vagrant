@@ -1,4 +1,4 @@
-!/bin/bash
+#!/bin/bash
 
 # Network configuration
 echo "Configuring network"
@@ -61,7 +61,9 @@ sudo -u $username dbus-launch dconf write /org/gnome/terminal/legacy/profiles:/l
 
 # Configure oh-my-posh in bashrc
 echo "Configuring oh-my-posh in bashrc..."
-path="/home/$username/.omp-profiles/profile.json"
+dir=/home/$username/.omp-profiles
+sudo mkdir $dir
+path="$dir/profile.json"
 cp /vagrant/src/oh-my-posh/profile.json $path
 echo 'eval "$(oh-my-posh init bash --config '"$path"')"' >> /home/$username/.bashrc
 
@@ -102,7 +104,7 @@ echo "Installing Docker..."
 for pkg in docker.io docker-doc docker-compose podman-docker containerd runc; do sudo apt-get remove $pkg; done
 sudo apt-get update
 sudo apt-get install ca-certificates curl gnupg -y
-sudo install -m 0755 -d /etc/apt/keyrings -y
+sudo install -m 0755 -d /etc/apt/keyrings
 curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
 sudo chmod a+r /etc/apt/keyrings/docker.gpg
 echo \
