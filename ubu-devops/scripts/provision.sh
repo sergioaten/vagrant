@@ -2,6 +2,17 @@
 
 username=vagrant
 
+# Network configuration
+echo "Configuring network"
+networkmanagerconf=$(cat <<CONF
+network:
+  version: 2
+  renderer: NetworkManager
+CONF
+)
+sudo touch /etc/netplan/networkmanager.yaml
+echo "$networkmanagerconf" | sudo tee /etc/netplan/networkmanager.yaml > /dev/null
+
 # Update repositories
 echo "Updating repositories..."
 sudo apt update
