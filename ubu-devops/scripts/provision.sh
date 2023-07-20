@@ -1,6 +1,4 @@
-#!/bin/bash
-
-username=vagrant
+!/bin/bash
 
 # Network configuration
 echo "Configuring network"
@@ -44,23 +42,28 @@ fc-cache -f -v
 echo "Installing dbus-x11 and dconf-editor..."
 sudo apt install dbus-x11 dconf-editor -y
 
+# Creating User
+username=$1
+password=$2
+sudo useradd -m -s /bin/bash $username
+echo "$username:$password" | sudo chpasswd
+echo "$username ALL=(ALL) NOPASSWD:ALL" | sudo tee /etc/sudoers.d/$username
+
 # Configurin Gnome Terminal Profile
 echo "Configuring Gnome Terminal profiles..."
 sudo -u $username dbus-launch dconf reset -f /org/gnome/terminal/legacy/profiles:/
 sudo -u $username dbus-launch dconf write /org/gnome/terminal/legacy/profiles:/default "''"
 id=$(uuidgen)
 formatted_id="${id,,}"
-sudo -u $username dbus-launch dconf load -f /org/gnome/terminal/legacy/profiles:/:"${formatted_id}"/ < /vagrant/scripts/terminal-profile
+sudo -u $username dbus-launch dconf load -f /org/gnome/terminal/legacy/profiles:/:"${formatted_id}"/ < /vagrant/src/gnome-terminal/terminal-profile
 sudo -u $username dbus-launch dconf write /org/gnome/terminal/legacy/profiles:/default "'${formatted_id}'"
 sudo -u $username dbus-launch dconf write /org/gnome/terminal/legacy/profiles:/list "['${formatted_id}']"
 
 # Configure oh-my-posh in bashrc
 echo "Configuring oh-my-posh in bashrc..."
-echo 'eval "$(oh-my-posh init bash --config https://raw.githubusercontent.com/JanDeDobbeleer/oh-my-posh/main/themes/emodipt-extend.omp.json)"' >> /home/$username/.bashrc
-
-# Remove password for the user
-echo "Removing password for the user..."
-sudo passwd -d $username
+path="/home/$username/.omp-profiles/profile.json"
+cp /vagrant/src/oh-my-posh/profile.json $path
+echo 'eval "$(oh-my-posh init bash --config '"$path"')"' >> /home/$username/.bashrc
 
 # Install awscli
 echo "Installing awscli..."
@@ -108,7 +111,7 @@ echo \
 sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
 sudo apt-get update
 sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin -y
-sudo usermod -aG docker $USER
+sudo usermod -aG docker $username
 
 # Install kubectl
 echo "Installing kubectl..."

@@ -1,2 +1,3 @@
 # vagrant
- Vagrant files repository
+
+Vagrant files repository

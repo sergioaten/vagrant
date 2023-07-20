@@ -1,20 +1,31 @@
 Vagrant.configure("2") do |config|
-    config.vm.provider :vmware_workstation do |v|
-      # Configuración de la máquina virtual en VMware
-      v.vmx["memsize"] = "6144" # 6 GB de RAM
-      v.vmx["numvcpus"] = "4" # 4 CPUs
-      v.vmx["displayname"] = "ubu/devops" # Nombre de la máquina en VMware
-    end
-  
-   # Configuración de la máquina virtual
-    config.vm.box = "sergioaten/ubuntu2204"
-    config.vm.hostname = "devops" # Hostname de la máquina
-  
-    # Configuración de la interfaz de red como NAT
-    config.vm.network "public_network", type: "dhcp"
-    
-    # Ejecutar un script después de la creación de la máquina virtual
-    #config.vm.provision "shell", path: "scripts/start.sh"
-    config.vm.provision 'shell', path: 'scripts/provision.sh'
+  config.vm.provider :vmware_workstation do |v|
+    # Configuración de la máquina virtual en VMware
+    v.gui = true
+    v.vmx["memsize"] = "6144" # 6 GB de RAM
+    v.vmx["numvcpus"] = "4" # 4 CPUs
+    v.vmx["displayname"] = "ubu/devops" # Nombre de la máquina en VMware
+  end
+
+  # Configuración de la máquina virtual
+  config.vm.box = "sergioaten/ubuntu2204"
+  config.vm.hostname = "devops" # Hostname de la máquina
+
+  # Configuración de la interfaz de red como NAT
+  # config.vm.network "public_network", type: "dhcp"
+  if Dir.glob("#{File.dirname(__FILE__)}/.vagrant/machines/default/vmware_workstation/*").empty? || ARGV[1] == '--provision'
+    print "Please insert your credentials\n"
+    print "Username: "
+    username = STDIN.gets.chomp
+    print "Password: "
+    password = STDIN.noecho(&:gets).chomp
+    print "\n"
+
+    config.vm.provision :shell, :path => "scripts/provision.sh", :args => [username, password]
     config.vm.provision 'shell', reboot: true
   end
+  # Ejecutar un script después de la creación de la máquina virtual
+  #config.vm.provision "shell", path: "scripts/start.sh"
+  #config.vm.provision 'shell', path: 'scripts/provision.sh'
+  config.vm.provision 'shell', reboot: true
+end
