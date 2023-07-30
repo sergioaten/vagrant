@@ -48,6 +48,7 @@ password=$2
 sudo useradd -m -s /bin/bash $username
 echo "$username:$password" | sudo chpasswd
 echo "$username ALL=(ALL) NOPASSWD:ALL" | sudo tee /etc/sudoers.d/$username
+sudo usermod -aG adm cdrom sudo dip plugdev lxd lpadmin
 
 # Configurin Gnome Terminal Profile
 echo "Configuring Gnome Terminal profiles..."
